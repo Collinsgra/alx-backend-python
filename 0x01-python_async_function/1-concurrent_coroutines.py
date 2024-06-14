@@ -3,17 +3,11 @@
 without using sort() because of concurrency."""
 import asyncio
 from typing import List
-from 0_basic_async_syntax import wait_random
+
+wait_random = __import__('0-basic_async_syntax').wait_random
+
 
 async def wait_n(n: int, max_delay: int) -> List[float]:
-    delays = []
-    for _ in range(n):
-        delay = await wait_random(max_delay)
-        Insert delay while maintaining the ascending order
-        for i, d in enumerate(delays):
-            if delay < d:
-                delays.insert(i, delay)
-                break
-        else:
-            delays.append(delay)
-    return delays
+    """ task 1 pythonasync project"""
+    the_list = [await wait_random(max_delay) for i in range(n)]
+    return sorted(the_list)
