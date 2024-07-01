@@ -4,21 +4,27 @@
 
 
 import unittest
-from unittest.mock import patch, Mock
-from parameterized import parameterized
-from utils import get_json
+from unittest.mock import patch
+from utils import memoize
 
-class TestGetJson(unittest.TestCase):
-    @parameterized.expand([
-        ("http://example.com", {"payload": True}),
-        ("http://holberton.io", {"payload": False}),
-    ])
-    def test_get_json(self, test_url, test_payload):
-        with patch('utils.requests.get') as mock_get:
-            mock_response = Mock()
-            mock_response.json.return_value = test_payload
-            mock_get.return_value = mock_response
+class TestMemoize(unittest.TestCase):
+    def test_memoize(self):
+        class TestClass:
+            def a_method(self):
+                return 42
 
-            result = get_json(test_url)
-            mock_get.assert_called_once_with(test_url)
-            self.assertEqual(result, test_payload)
+            @memoize
+            def a_property(self):
+                return self.a_method()
+
+        with patch.object(TestClass, 'a_method', return_value=42) as mock_method:
+            instance = TestClass()
+            # Access a_property twice
+            result1 = instance.a_property
+            result2 = instance.a_property
+            
+            # Ensure a_method was called only once
+            mock_method.assert_called_once()
+            # Check the result is as expected
+            self.assertEqual(result1, 42)
+            self.assertEqual(result2, 42)
